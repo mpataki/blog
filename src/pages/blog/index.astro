@@ -17,71 +17,133 @@ const posts = (await getCollection('blog')).sort(
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 		<style>
-			main {
-				width: 960px;
+			section {
+				margin-bottom: 3rem;
 			}
+
+			.page-header {
+				margin-bottom: 3rem;
+				text-align: left;
+			}
+
+			.page-header h1 {
+				font-size: 2.5rem;
+				margin-bottom: 0.5rem;
+				color: var(--charcoal);
+			}
+
+			.page-header p {
+				font-size: 1.1rem;
+				color: var(--text-secondary);
+			}
+
 			ul {
-				display: flex;
-				flex-wrap: wrap;
+				display: grid;
+				grid-template-columns: repeat(2, 1fr);
 				gap: 2rem;
 				list-style-type: none;
 				margin: 0;
 				padding: 0;
 			}
+
 			ul li {
-				width: calc(50% - 1rem);
+				background: var(--card-bg);
+				border-radius: var(--radius-md);
+				overflow: hidden;
+				border: 1px solid var(--border);
+				transition: all 0.3s ease;
 			}
-			ul li * {
-				text-decoration: none;
-				transition: 0.2s ease;
+
+			ul li:hover {
+				transform: translateY(-4px);
+				box-shadow: var(--shadow-md);
+				border-color: var(--light-sage);
 			}
+
 			ul li:first-child {
-				width: 100%;
-				margin-bottom: 1rem;
-				text-align: center;
+				grid-column: 1 / -1;
 			}
-			ul li:first-child img {
-				width: 100%;
-			}
-			ul li:first-child .title {
-				font-size: 2.369rem;
-			}
-			ul li img {
-				margin-bottom: 0.5rem;
-				border-radius: 12px;
-			}
+
 			ul li a {
 				display: block;
+				text-decoration: none;
 			}
+
+			ul li img {
+				width: 100%;
+				height: 240px;
+				object-fit: cover;
+				transition: transform 0.3s ease;
+			}
+
+			ul li:first-child img {
+				height: 400px;
+			}
+
+			ul li:hover img {
+				transform: scale(1.05);
+			}
+
+			.post-content {
+				padding: 1.5rem;
+			}
+
 			.title {
-				margin: 0;
-				color: rgb(var(--black));
-				line-height: 1;
+				margin: 0 0 0.75rem 0;
+				color: var(--charcoal);
+				line-height: 1.3;
+				font-size: 1.25rem;
+				transition: color 0.2s ease;
 			}
+
+			ul li:first-child .title {
+				font-size: 2rem;
+			}
+
 			.date {
 				margin: 0;
-				color: rgb(var(--gray));
+				color: var(--text-secondary);
+				font-size: 0.9rem;
+				transition: color 0.2s ease;
 			}
-			ul li a:hover h4,
-			ul li a:hover .date {
-				color: rgb(var(--accent));
+
+			ul li:hover .title {
+				color: var(--sage-green);
 			}
-			ul a:hover img {
-				box-shadow: var(--box-shadow);
+
+			ul li:hover .date {
+				color: var(--accent);
 			}
-			@media (max-width: 720px) {
+
+			@media (max-width: 920px) {
 				ul {
-					gap: 0.5em;
+					grid-template-columns: 1fr;
 				}
-				ul li {
-					width: 100%;
-					text-align: center;
+
+				ul li:first-child img {
+					height: 300px;
 				}
-				ul li:first-child {
-					margin-bottom: 0;
+
+				ul li img {
+					height: 200px;
 				}
+			}
+
+			@media (max-width: 720px) {
+				.page-header h1 {
+					font-size: 2rem;
+				}
+
+				.page-header p {
+					font-size: 1rem;
+				}
+
 				ul li:first-child .title {
-					font-size: 1.563em;
+					font-size: 1.5rem;
+				}
+
+				.title {
+					font-size: 1.1rem;
 				}
 			}
 		</style>
@@ -89,6 +151,10 @@ const posts = (await getCollection('blog')).sort(
 	<body>
 		<Header />
 		<main>
+			<div class="page-header">
+				<h1>Blog</h1>
+				<p>Thoughts and stories</p>
+			</div>
 			<section>
 				<ul>
 					{
@@ -98,10 +164,12 @@ const posts = (await getCollection('blog')).sort(
 									{post.data.heroImage && (
 										<Image width={720} height={360} src={post.data.heroImage} alt="" />
 									)}
-									<h4 class="title">{post.data.title}</h4>
-									<p class="date">
-										<FormattedDate date={post.data.pubDate} />
-									</p>
+									<div class="post-content">
+										<h4 class="title">{post.data.title}</h4>
+										<p class="date">
+											<FormattedDate date={post.data.pubDate} />
+										</p>
+									</div>
 								</a>
 							</li>
 						))
