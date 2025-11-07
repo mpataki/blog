@@ -3,6 +3,8 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { Image } from 'astro:assets';
+import lunaImage from '../assets/luna.jpg';
 ---
 
 <!doctype html>
@@ -13,37 +15,229 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 	<body>
 		<Header />
 		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This
-				template serves as a lightweight, minimally-styled starting point for anyone looking to build
-				a personal website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to
-				<a href="https://docs.astro.build/">read the docs</a>
-				or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out
-				<a href="https://github.com/Charca/astro-blog-template">astro-blog-template</a>
-				by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
+			<section class="hero">
+				<div class="hero-content">
+					<div class="hero-text">
+						<h1>Welcome</h1>
+						<p class="tagline">
+							Thoughts, stories, and ideas.
+						</p>
+						<p class="intro">
+							A collection of writings exploring software, technology, and beyond.
+						</p>
+						<div class="cta-buttons">
+							<a href="/blog" class="btn-primary">Read the blog</a>
+							<a href="/about" class="btn-secondary">About me</a>
+						</div>
+					</div>
+					<div class="hero-image">
+						<Image
+							src={lunaImage}
+							alt="Luna enjoying the outdoors"
+							width={500}
+							quality={90}
+							class="luna-image"
+						/>
+					</div>
+				</div>
+			</section>
+
+			<section class="features">
+				<div class="feature-card">
+					<h3>Recent Posts</h3>
+					<p>Discover my latest thoughts on technology and software development.</p>
+					<a href="/blog" class="feature-link">Explore posts →</a>
+				</div>
+				<div class="feature-card">
+					<h3>Topics</h3>
+					<p>Writing about software, web development, and the things that inspire me.</p>
+				</div>
+				<div class="feature-card">
+					<h3>Connect</h3>
+					<p>Have thoughts to share? Get in touch.</p>
+					<a href="/about" class="feature-link">Learn more →</a>
+				</div>
+			</section>
 		</main>
 		<Footer />
 	</body>
 </html>
+
+<style>
+	.hero {
+		margin-bottom: 4rem;
+	}
+
+	.hero-content {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 4rem;
+		align-items: center;
+		margin-bottom: 3rem;
+	}
+
+	.hero-text h1 {
+		font-size: 3.5rem;
+		margin-bottom: 1rem;
+		background: linear-gradient(135deg, var(--sage-green), var(--accent));
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
+	}
+
+	.tagline {
+		font-size: 1.5rem;
+		color: var(--text-primary);
+		font-weight: 500;
+		margin-bottom: 1.5rem;
+	}
+
+	.intro {
+		font-size: 1.1rem;
+		line-height: 1.8;
+		margin-bottom: 2rem;
+	}
+
+	.cta-buttons {
+		display: flex;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+
+	.btn-primary,
+	.btn-secondary {
+		padding: 0.875rem 1.75rem;
+		border-radius: var(--radius-sm);
+		font-weight: 600;
+		font-size: 1rem;
+		transition: all 0.2s ease;
+		display: inline-block;
+	}
+
+	.btn-primary {
+		background: var(--sage-green);
+		color: white;
+	}
+
+	.btn-primary:hover {
+		background: var(--dark-sage);
+		transform: translateY(-2px);
+		box-shadow: var(--shadow-md);
+	}
+
+	.btn-secondary {
+		background: transparent;
+		color: var(--accent);
+		border: 2px solid var(--accent);
+	}
+
+	.btn-secondary:hover {
+		background: var(--accent);
+		color: white;
+		transform: translateY(-2px);
+	}
+
+	.hero-image {
+		position: relative;
+	}
+
+	.luna-image {
+		width: 100%;
+		height: auto;
+		border-radius: var(--radius-lg);
+		box-shadow: var(--shadow-lg);
+		transition: transform 0.3s ease;
+	}
+
+	.luna-image:hover {
+		transform: scale(1.02);
+	}
+
+	.features {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 2rem;
+		margin-top: 4rem;
+	}
+
+	.feature-card {
+		background: var(--card-bg);
+		padding: 2rem;
+		border-radius: var(--radius-md);
+		border: 1px solid var(--border);
+		transition: all 0.2s ease;
+	}
+
+	.feature-card:hover {
+		box-shadow: var(--shadow-md);
+		transform: translateY(-4px);
+		border-color: var(--light-sage);
+	}
+
+	.feature-card h3 {
+		color: var(--sage-green);
+		margin-bottom: 1rem;
+		font-size: 1.25rem;
+	}
+
+	.feature-card p {
+		font-size: 0.95rem;
+		line-height: 1.6;
+	}
+
+	.feature-link {
+		display: inline-block;
+		margin-top: 1rem;
+		color: var(--accent);
+		font-weight: 600;
+		transition: all 0.2s ease;
+	}
+
+	.feature-link:hover {
+		color: var(--sage-green);
+		transform: translateX(4px);
+	}
+
+	@media (max-width: 920px) {
+		.hero-content {
+			grid-template-columns: 1fr;
+			gap: 2rem;
+		}
+
+		.hero-text h1 {
+			font-size: 2.5rem;
+		}
+
+		.hero-image {
+			order: -1;
+		}
+
+		.features {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	@media (max-width: 720px) {
+		.hero-text h1 {
+			font-size: 2rem;
+		}
+
+		.tagline {
+			font-size: 1.25rem;
+		}
+
+		.intro {
+			font-size: 1rem;
+		}
+
+		.cta-buttons {
+			flex-direction: column;
+		}
+
+		.btn-primary,
+		.btn-secondary {
+			width: 100%;
+			text-align: center;
+		}
+	}
+</style>
