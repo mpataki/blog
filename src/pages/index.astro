@@ -2,9 +2,15 @@
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
+import FormattedDate from '../components/FormattedDate.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
-import lunaImage from '../assets/luna.jpg';
+import { getReadingTime } from '../utils/readingTime';
+
+const posts = (await getCollection('blog')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
 ---
 
 <!doctype html>
@@ -15,48 +21,37 @@ import lunaImage from '../assets/luna.jpg';
 	<body>
 		<Header />
 		<main>
-			<section class="hero">
-				<div class="hero-content">
-					<div class="hero-text">
-						<h1>Welcome</h1>
-						<p class="tagline">
-							Thoughts, stories, and ideas.
-						</p>
-						<p class="intro">
-							A collection of writings exploring software, technology, and beyond.
-						</p>
-						<div class="cta-buttons">
-							<a href="/blog" class="btn-primary">Read the blog</a>
-							<a href="/about" class="btn-secondary">About me</a>
-						</div>
-					</div>
-					<div class="hero-image">
-						<Image
-							src={lunaImage}
-							alt="Luna enjoying the outdoors"
-							width={500}
-							quality={90}
-							class="luna-image"
-						/>
-					</div>
-				</div>
-			</section>
-
-			<section class="features">
-				<div class="feature-card">
-					<h3>Recent Posts</h3>
-					<p>Discover my latest thoughts on technology and software development.</p>
-					<a href="/blog" class="feature-link">Explore posts →</a>
-				</div>
-				<div class="feature-card">
-					<h3>Topics</h3>
-					<p>Writing about software, web development, and the things that inspire me.</p>
-				</div>
-				<div class="feature-card">
-					<h3>Connect</h3>
-					<p>Have thoughts to share? Get in touch.</p>
-					<a href="/about" class="feature-link">Learn more →</a>
-				</div>
+			<section class="recent-posts">
+				<ul>
+					{
+						posts.map((post) => (
+							<li>
+								<a href={`/blog/${post.id}/`}>
+									<article>
+										{post.data.heroImage && (
+											<Image
+												src={post.data.heroImage}
+												alt=""
+												width={720}
+												height={360}
+												class="post-image"
+											/>
+										)}
+										<div class="post-content">
+											<h2>{post.data.title}</h2>
+											<time datetime={post.data.pubDate.toISOString()}>
+												<FormattedDate date={post.data.pubDate} /> · {getReadingTime(post.body)}
+											</time>
+											{post.data.description && (
+												<p class="description">{post.data.description}</p>
+											)}
+										</div>
+									</article>
+								</a>
+							</li>
+						))
+					}
+				</ul>
 			</section>
 		</main>
 		<Footer />
@@ -64,180 +59,100 @@ import lunaImage from '../assets/luna.jpg';
 </html>
 
 <style>
-	.hero {
-		margin-bottom: 4rem;
+	.recent-posts {
+		max-width: 100%;
 	}
 
-	.hero-content {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 4rem;
-		align-items: center;
-		margin-bottom: 3rem;
-	}
-
-	.hero-text h1 {
-		font-size: 3.5rem;
-		margin-bottom: 1rem;
-		background: linear-gradient(135deg, var(--sage-green), var(--accent));
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-clip: text;
-	}
-
-	.tagline {
-		font-size: 1.5rem;
-		color: var(--text-primary);
-		font-weight: 500;
-		margin-bottom: 1.5rem;
-	}
-
-	.intro {
-		font-size: 1.1rem;
-		line-height: 1.8;
-		margin-bottom: 2rem;
-	}
-
-	.cta-buttons {
+	ul {
+		list-style: none;
+		padding: 0;
+		margin: 0;
 		display: flex;
-		gap: 1rem;
-		flex-wrap: wrap;
-	}
-
-	.btn-primary,
-	.btn-secondary {
-		padding: 0.875rem 1.75rem;
-		border-radius: var(--radius-sm);
-		font-weight: 600;
-		font-size: 1rem;
-		transition: all 0.2s ease;
-		display: inline-block;
-	}
-
-	.btn-primary {
-		background: var(--sage-green);
-		color: white;
-	}
-
-	.btn-primary:hover {
-		background: var(--dark-sage);
-		transform: translateY(-2px);
-		box-shadow: var(--shadow-md);
-	}
-
-	.btn-secondary {
-		background: transparent;
-		color: var(--accent);
-		border: 2px solid var(--accent);
-	}
-
-	.btn-secondary:hover {
-		background: var(--accent);
-		color: white;
-		transform: translateY(-2px);
-	}
-
-	.hero-image {
-		position: relative;
-	}
-
-	.luna-image {
-		width: 100%;
-		height: auto;
-		border-radius: var(--radius-lg);
-		box-shadow: var(--shadow-lg);
-		transition: transform 0.3s ease;
-	}
-
-	.luna-image:hover {
-		transform: scale(1.02);
-	}
-
-	.features {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
+		flex-direction: column;
 		gap: 2rem;
-		margin-top: 4rem;
 	}
 
-	.feature-card {
+	li {
+		margin: 0;
+	}
+
+	li a {
+		display: block;
+		text-decoration: none;
+		color: inherit;
+	}
+
+	article {
+		display: grid;
+		grid-template-columns: 300px 1fr;
+		gap: 2rem;
 		background: var(--card-bg);
-		padding: 2rem;
 		border-radius: var(--radius-md);
 		border: 1px solid var(--border);
-		transition: all 0.2s ease;
+		overflow: hidden;
+		transition: all 0.3s ease;
 	}
 
-	.feature-card:hover {
-		box-shadow: var(--shadow-md);
+	article:hover {
 		transform: translateY(-4px);
+		box-shadow: var(--shadow-md);
 		border-color: var(--light-sage);
 	}
 
-	.feature-card h3 {
-		color: var(--sage-green);
-		margin-bottom: 1rem;
-		font-size: 1.25rem;
+	.post-image {
+		width: 300px;
+		height: 200px;
+		object-fit: cover;
 	}
 
-	.feature-card p {
-		font-size: 0.95rem;
+	.post-content {
+		padding: 1.5rem 2rem 1.5rem 0;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+	}
+
+	.post-content h2 {
+		font-size: 1.5rem;
+		margin: 0 0 0.5rem 0;
+		color: var(--charcoal);
+		transition: color 0.2s ease;
+	}
+
+	article:hover h2 {
+		color: var(--sage-green);
+	}
+
+	time {
+		font-size: 0.9rem;
+		color: var(--text-secondary);
+		margin-bottom: 0.75rem;
+	}
+
+	.description {
+		color: var(--text-secondary);
 		line-height: 1.6;
-	}
-
-	.feature-link {
-		display: inline-block;
-		margin-top: 1rem;
-		color: var(--accent);
-		font-weight: 600;
-		transition: all 0.2s ease;
-	}
-
-	.feature-link:hover {
-		color: var(--sage-green);
-		transform: translateX(4px);
+		margin: 0;
 	}
 
 	@media (max-width: 920px) {
-		.hero-content {
+		article {
 			grid-template-columns: 1fr;
-			gap: 2rem;
 		}
 
-		.hero-text h1 {
-			font-size: 2.5rem;
+		.post-image {
+			width: 100%;
+			height: 240px;
 		}
 
-		.hero-image {
-			order: -1;
-		}
-
-		.features {
-			grid-template-columns: 1fr;
+		.post-content {
+			padding: 1.5rem;
 		}
 	}
 
 	@media (max-width: 720px) {
-		.hero-text h1 {
-			font-size: 2rem;
-		}
-
-		.tagline {
+		.post-content h2 {
 			font-size: 1.25rem;
-		}
-
-		.intro {
-			font-size: 1rem;
-		}
-
-		.cta-buttons {
-			flex-direction: column;
-		}
-
-		.btn-primary,
-		.btn-secondary {
-			width: 100%;
-			text-align: center;
 		}
 	}
 </style>

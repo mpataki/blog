@@ -6,6 +6,7 @@ import Footer from '../../components/Footer.astro';
 import FormattedDate from '../../components/FormattedDate.astro';
 import Header from '../../components/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { getReadingTime } from '../../utils/readingTime';
 
 const posts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
@@ -19,22 +20,6 @@ const posts = (await getCollection('blog')).sort(
 		<style>
 			section {
 				margin-bottom: 3rem;
-			}
-
-			.page-header {
-				margin-bottom: 3rem;
-				text-align: left;
-			}
-
-			.page-header h1 {
-				font-size: 2.5rem;
-				margin-bottom: 0.5rem;
-				color: var(--charcoal);
-			}
-
-			.page-header p {
-				font-size: 1.1rem;
-				color: var(--text-secondary);
 			}
 
 			ul {
@@ -130,14 +115,6 @@ const posts = (await getCollection('blog')).sort(
 			}
 
 			@media (max-width: 720px) {
-				.page-header h1 {
-					font-size: 2rem;
-				}
-
-				.page-header p {
-					font-size: 1rem;
-				}
-
 				ul li:first-child .title {
 					font-size: 1.5rem;
 				}
@@ -151,10 +128,6 @@ const posts = (await getCollection('blog')).sort(
 	<body>
 		<Header />
 		<main>
-			<div class="page-header">
-				<h1>Blog</h1>
-				<p>Thoughts and stories</p>
-			</div>
 			<section>
 				<ul>
 					{
@@ -167,7 +140,7 @@ const posts = (await getCollection('blog')).sort(
 									<div class="post-content">
 										<h4 class="title">{post.data.title}</h4>
 										<p class="date">
-											<FormattedDate date={post.data.pubDate} />
+											<FormattedDate date={post.data.pubDate} /> · {getReadingTime(post.body)}
 										</p>
 									</div>
 								</a>
