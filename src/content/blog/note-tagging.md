@@ -78,6 +78,10 @@ Top 10 most used tags:
   github: 140 notes
 ```
 
+Just because it's cool, here's what that looks like visualized in Obsidian's graph view:
+
+![Obsidian graph visualization showing the interconnected network of tagged notes](../../assets/obsidian-visualization.gif)
+
 You can see my my historical areas of focus in those numbers. `computer-science` dominates because of my CS degree from Waterloo. `assignment` and `academic-course` capture my university years. `software-engineering`, `system-architecture`, and `github` represent my professional career. And `problem-solving` (although possibly too broad) cuts across everything—186 notes spanning university math, professional development, and personal projects.
 
 The 2,028 unique tags across 2,650 notes feels about right. Not so few that everything is overly broad, not so many that I'm creating single-use tags. The semantic similarity check naturally prevents tag explosion while still allowing genuinely distinct concepts to have their own tags.
