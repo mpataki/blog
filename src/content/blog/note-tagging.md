@@ -7,25 +7,23 @@ heroImage: '../../assets/obsidian-note-tagging.png'
 
 I'm a bit obsessive about note taking. The act of writing things down helps my process, focus, and recall, however I've long felt like I've been leaving a key benefit on the table -- discovery of past knowledge. When I'm working on something, my in-the-moment recall for notes often yields a lengthy search effort, and is predicated by my recall that a note exists in the first place.
 
-At present, I have ~15 years of notes scattered across multiple systems, accumulated through university, my professional software development career, music projects, home maintenance, and everything else I've documented. That's roughly 2,650 markdown files representing countless hours of learning, problem-solving, and decision-making. The knowledge is there, but finding it when I need it? That's been the challenge.
+At present, I have ~15 years of notes scattered across multiple systems, accumulated through university, my professional software development career, music projects, home maintenance, and everything else I've documented. That's roughly 3200 markdown files representing countless hours of learning, problem-solving, and decision-making. The knowledge is there, but finding it when I need it? That's been the challenge.
 
-I've moved between several note taking systems and applications. 
+The core issue isn't just organization—it's consistency. I've moved between different note-taking applications over the years and experimented with various organizational methods. Some were paid, like [Evernote](https://evernote.com/), some were simply markdown files on disk that I built [some tooling around](https://github.com/mpataki/note) (S3 sync, git, etc), and these days I'm using the [PARA](https://fortelabs.com/blog/para/) method on top of the ever popular [https://obsidian.md/](Obsidian). Each migration left me with a folder of "everything before today" that I'd promise myself to reorganize later. Spoiler: later never came. My approach to tagging was no better. Sometimes I'd tag `performance-optimization`, other times `perf-tuning`, and still other times `optimization`. The same concept, three different tags, zero discoverability.
 
-The core issue isn't just organization—it's consistency. I've moved between different note-taking applications over the years. I've experimented with various organizational methods. Some were paid, like [Evernote](https://evernote.com/), some were simply markdown files on disk that I built some tooling around (S3 sync, git, etc), and these days I'm using the [PARA](https://fortelabs.com/blog/para/) method on top of the ever popular [https://obsidian.md/](Obsidian). Each migration left me with a folder of "everything before today" that I'd promise to reorganize later. Spoiler: later never came. Even worse, my tagging was all over the place. Sometimes I'd tag `performance-optimization`, other times `perf-tuning`, and still other times `optimization`. The same concept, three different tags, zero discoverability.
-
-With the advent of LLMs, particularly Claude, I decided to tackle this head-on. The result is a system that maintains semantic consistency across my entire note corpus using AI-assisted tagging, vector embeddings, and Redis Stack. More importantly, it actually works—I'm regularly rediscovering university notes I'd completely forgotten about, and making connections across decades of accumulated knowledge.
+With the advent of LLMs, particularly Claude, I decided to tackle this head-on. The result is a system that maintains semantic consistency across my entire note corpus using AI-assisted tagging, vector embeddings, and Redis Stack. More importantly, it actually works—I'm regularly rediscovering university notes I'd completely forgotten about, and making connections across more than a decade of accumulated knowledge.
 
 ## The Vision: Discovery-Focused Tagging
 
 Before diving into the technical solution, it's worth understanding what "good tagging" means in this context. I'm not trying to create a perfect taxonomy or file everything into neat hierarchical categories. Instead, I want tags that enable discovery—ways to find notes when I'm approaching a problem from a different angle than when I originally wrote them.
 
-The key insight is that tags should span multiple conceptual levels. A note about optimizing Redis performance should have broad tags (like `system-architecture`), specific tags (like `redis`), and cross-cutting tags (like `performance-optimization`). This creates multiple "discovery paths" into the same content. Someone searching for Redis work finds it. Someone researching performance patterns finds it. Someone exploring system architecture finds it. Three different contexts, same note, maximum utility.
+The key insight is that tags should span multiple conceptual levels. A note about optimizing Redis performance should have broad tags (like `system-architecture`), specific tags (like `redis` or `aof`), and cross-cutting tags (like `performance-optimization`). This creates multiple "discovery paths" into the same content. Someone searching for Redis work finds it. Someone researching performance patterns finds it. Someone exploring system architecture finds it. Three different contexts, same note, maximum utility.
 
-The challenge is maintaining this consistency across thousands of notes. That's where the LLM comes in.
+The challenge is maintaining this consistency across thousands of notes. That's where vector embeddings comes in.
 
 ## The Technical Solution
 
-At its core, my system does something conceptually simple: when suggesting tags for a note, check if we've used similar tags before. If we have, use the existing tag instead of creating a new one. The magic is in how we define "similar."
+At its core, this system does something conceptually simple: when suggesting tags for a note, check if we've used similar tags before. If we have, use the existing tag instead of creating a new one. The magic is in how we define "similar."
 
 ### Architecture Overview
 
@@ -35,7 +33,7 @@ The system consists of a few Python scripts orchestrated through a `/tag` comman
 2. **Similarity Check**: Each suggested tag is converted to a vector embedding using the `all-MiniLM-L6-v2` sentence transformer model from [https://huggingface.co/](Hugging Face).
 3. **Vector Search**: [https://redis.io/about/about-stack/](Redis Stack)'s HNSW index finds existing tags with high cosine similarity (threshold: 0.7+)
 4. **Tag Resolution**: If a similar tag exists, use it. If not, create the new tag.
-5. **Application**: Write tags to the note's YAML frontmatter and update Redis usage counters
+5. **Application**: Write tags to the note's YAML frontmatter and record new embeddings and usage counters in Redis.
 
 The entire flow is surprisingly fast—tagging a note takes just a couple seconds, with most of that time spent in the Claude API call.
 
@@ -59,7 +57,7 @@ This let me tag hundreds of notes at a time, working through directories systema
 
 ### The Results
 
-After tagging my entire corpus, here's what the distribution looks like:
+After tagging much of my entire corpus, here's what the distribution looks like:
 
 ```
 Total unique tags: 2028
@@ -82,7 +80,7 @@ Just because it's cool, here's what that looks like visualized in Obsidian's gra
 
 ![Obsidian graph visualization showing the interconnected network of tagged notes](../../assets/obsidian-visualization.gif)
 
-You can see my my historical areas of focus in those numbers. `computer-science` dominates because of my CS degree from Waterloo. `assignment` and `academic-course` capture my university years. `software-engineering`, `system-architecture`, and `github` represent my professional career. And `problem-solving` (although possibly too broad) cuts across everything—186 notes spanning university math, professional development, and personal projects.
+The white dots are individual notes, and green are the tags connecting them, sized according to their usage count. You can see my my historical areas of focus in those numbers. `computer-science` dominates because of my CS degree from Waterloo. `assignment` and `academic-course` capture my university years. `software-engineering`, `system-architecture`, and `github` represent my professional career. And `problem-solving` (although possibly too broad) cuts across everything—186 notes spanning university math, professional development, and personal projects.
 
 The 2,028 unique tags across 2,650 notes feels about right. Not so few that everything is overly broad, not so many that I'm creating single-use tags. The semantic similarity check naturally prevents tag explosion while still allowing genuinely distinct concepts to have their own tags.
 
@@ -119,7 +117,7 @@ The `tagging-agent-version` system turned out to be crucial for this iterative i
 
 ### Rediscovery Is the Real Win
 
-The technical achievement is satisfying, but the practical value is in rediscovery. I regularly find notes I'd completely forgotten about. University mathematics notes that are relevant to a current graph theory problem. Old architecture decisions that inform new system design. Music theory concepts that apply to audio software I'm building at work.
+The technical achievement is satisfying, but the practical value is in rediscovery. I regularly find notes I'd completely forgotten about. University mathematics notes that are relevant to a current graph theory problem. Old architecture decisions that inform new system design. Media encoding concepts that apply to audio software I'm building at work.
 
 The breadth-depth spectrum in my tagging strategy makes this possible. When I search for `redis`, I find Redis-specific notes. When I search for `performance-optimization`, I find the Redis notes *plus* notes about optimizing React apps, database queries, audio processing pipelines, and a dozen other domains. The cross-cutting tags create unexpected connections.
 
